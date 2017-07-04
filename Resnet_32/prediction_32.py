@@ -67,28 +67,25 @@ Making predicitions
 test_img_paths = [img_path for img_path in glob.glob("/home/ubuntu/DeepLearning_crop_classification/input/PLOT/test/*jpg")]
 
 #Making predictions
-test_ids = []
-preds = []
-for img_path in test_img_paths:
-    img = cv2.imread(img_path, cv2.IMREAD_COLOR)
-    img = transform_img(img, img_width=IMG_WIDTH, img_height=IMG_HEIGHT)
-
-    net.blobs['data'].data[...] = transformer.preprocess('data', img)
-    out = net.forward()
-    pred_probas = out['prob']
-
-    test_ids = test_ids + [img_path.split('/')[-1][:-4]]
-    preds = preds + [pred_probas.argmax()]
-
-    print img_path
-    print pred_probas.argmax()
-    print '-------'
-
-'''
-Making submission file
-'''
+#test_ids = []
+#preds = []
 with open("/home/ubuntu/DeepLearning_crop_classification/Caffe_Model_Plot/Resnet_32/Resnet_plot_32.csv","w") as f:
-    f.write("id,label\n")
-    for i in range(len(test_ids)):
-        f.write(str(test_ids[i])+","+str(preds[i])+"\n")
-f.close()
+    f.write("Id,SUGARCANE,SOYBEAN,RICE,MAIZE,GROUNDNUT,LABEL\n")
+    for img_path in test_img_paths:
+        img = cv2.imread(img_path, cv2.IMREAD_COLOR)
+        img = transform_img(img, img_width=IMG_WIDTH, img_height=IMG_HEIGHT)
+
+        net.blobs['data'].data[...] = transformer.preprocess('data', img)
+        out = net.forward()
+        pred_probas = out['prob']
+
+        test_ids = img_path.split('/')[-1][:-4]
+        preds = pred_probas.argmax()
+
+        print img_path
+        print pred_probas
+        print '-------'
+
+
+        f.write(str(test_ids)+","+str(pred_probas[0,0])+","+str(pred_probas[0,1])+","+str(pred_probas[0,2])+","+str(pred_probas[0,3])+","+str(pred_probas[0,4])+","+str(preds)+"\n")
+    f.close()
